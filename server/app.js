@@ -29,6 +29,11 @@ app.use('/api/tickets', ticketsRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/checkin', checkinRoutes);
 
+// 404 handler
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, '../public/404.html'));
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
