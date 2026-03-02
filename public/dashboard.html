@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Ticketing Platform - Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .dashboard-section {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .tab-btn {
+            margin-right: 10px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        th {
+            color: var(--neon-accent);
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--bg-color-1);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--neon-accent);
+        }
+
+        .close-btn {
+            float: right;
+            cursor: pointer;
+            color: white;
+            border: none;
+            background: none;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1><a href="/" style="color:inherit;text-decoration:none;">EVenTix</a></h1>
+        <nav>
+            <a href="index.html">Events</a>
+            <a href="dashboard.html" style="color:var(--neon-accent);">Dashboard</a>
+            <button onclick="logout()" class="btn-neon" style="margin-left: 20px;">Logout</button>
+        </nav>
+    </header>
+
+    <main>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Dashboard</h2>
+            <div id="role-badge" class="badge" style="background:var(--neon-accent); color:black;">Attendee</div>
+        </div>
+
+        <!-- ATTENDEE SECTIONS -->
+        <div id="attendee-view" style="display:none;">
+            <div class="glass-card">
+                <h3 style="color:var(--neon-accent);">My Tickets</h3>
+                <div id="my-tickets-container" style="margin-top:20px;">Loading tickets...</div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 20px;">
+                <h3 style="color:var(--neon-accent);">Order History</h3>
+                <div id="my-orders-container" style="margin-top:20px;">Loading orders...</div>
+            </div>
+        </div>
+
+        <!-- ORGANIZER SECTIONS -->
+        <div id="organizer-view" style="display:none;">
+            <button class="btn-primary tab-btn" onclick="showOrgTab('events')">My Events</button>
+            <button class="btn-neon tab-btn" onclick="showOrgTab('checkin')">Check-in Scanner</button>
+
+            <!-- My Events Tab -->
+            <div id="org-events" class="dashboard-section glass-card" style="display:block;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="color:var(--neon-accent);">Managed Events</h3>
+                    <button class="btn-primary" onclick="openCreateEventModal()">+ Create Event</button>
+                </div>
+                <div id="org-events-list">Loading events...</div>
+            </div>
+
+            <!-- Checkin Tab -->
+            <div id="org-checkin" class="dashboard-section glass-card">
+                <h3 style="color:var(--neon-accent);">Check-in Tool</h3>
+                <p style="color:var(--text-muted); margin-bottom:20px;">Select an event and scan ticket codes</p>
+                <div class="form-group">
+                    <label>Select Event</label>
+                    <select id="checkin-event-select"></select>
+                </div>
+                <div class="form-group" style="display:flex; gap:10px;">
+                    <input type="text" id="ticket-code-input" placeholder="Enter Ticket Code (e.g. EVT1-USR2-XYZ)">
+                    <button class="btn-primary" onclick="processCheckin()">Scan</button>
+                </div>
+                <div id="checkin-result" style="margin-top: 15px; font-weight:bold;"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modals -->
+    <!-- Create Event Modal -->
+    <div id="createEventModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('createEventModal')">&times;</button>
+            <h3 style="margin-bottom: 20px; color:var(--neon-accent);">Create New Event</h3>
+            <form id="create-event-form">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="ce-title" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="ce-desc" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Venue</label>
+                    <input type="text" id="ce-venue" required>
+                </div>
+                <div style="display:flex; gap: 15px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Date</label>
+                        <input type="date" id="ce-date" required>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Time</label>
+                        <input type="time" id="ce-time" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%;">Create Draft Event</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Manage Event Modal (Add Tickets / Publish) -->
+    <div id="manageEventModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('manageEventModal')">&times;</button>
+            <h3 id="manage-event-title" style="margin-bottom: 20px; color:var(--neon-accent);">Manage Event</h3>
+
+            <div id="add-ticket-section" class="glass-card" style="margin-bottom: 20px;">
+                <h4>Add Ticket Type</h4>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+                    <input type="text" id="tt-name" placeholder="Type Name (e.g. VIP)" required>
+                    <input type="number" id="tt-price" placeholder="Price ($)" step="0.01" min="0" required>
+                    <input type="number" id="tt-qty" placeholder="Quantity" min="1" required>
+                    <button class="btn-neon" onclick="addTicketType()">Add</button>
+                </div>
+            </div>
+
+            <div id="event-stats-section" style="margin-bottom: 20px;"></div>
+
+            <button id="publish-event-btn" class="btn-primary"
+                style="width:100%; display:none; background:var(--success);" onclick="publishEvent()">Publish
+                Event</button>
+            <button id="complete-event-btn" class="btn-danger" style="width:100%; display:none; margin-top:10px;"
+                onclick="completeEvent()">Mark Completed</button>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

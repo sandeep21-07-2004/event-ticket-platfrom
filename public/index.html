@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Ticketing Platform - Discover Events</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1><a href="/" style="color:inherit;text-decoration:none;">EVenTix</a></h1>
+        <nav>
+            <a href="index.html" style="color:var(--neon-accent);">Events</a>
+            <a href="dashboard.html" class="auth-nav">Dashboard</a>
+            <a href="register.html" class="guest-nav">Login / Register</a>
+            <button onclick="logout()" class="btn-neon auth-nav" style="margin-left: 20px;">Logout</button>
+        </nav>
+    </header>
+
+    <main>
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h2 style="font-size: 2.5rem; margin-bottom: 10px;">Discover Extraordinary Events</h2>
+            <p style="color: var(--text-muted);">Find and book tickets for the best events happening around you.</p>
+        </div>
+
+        <div id="events-loader" class="loader"></div>
+        <div id="events-grid" class="grid" style="display: none;">
+            <!-- Events will be populated here -->
+        </div>
+
+        <!-- Modal for buying tickets -->
+        <div id="buy-modal" class="glass-card"
+            style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; width: 90%; max-width: 500px; background: var(--bg-color-1);">
+            <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 20px;">
+                <h3 id="modal-event-title">Buy Tickets</h3>
+                <button onclick="closeModal()"
+                    style="background:none; border:none; color:white; font-size: 1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            <div id="ticket-types-container"></div>
+            <div style="margin-top: 20px; text-align: right;">
+                <h4 id="total-price" style="margin-bottom: 10px; color: var(--neon-accent);">Total: $0.00</h4>
+                <button class="btn-primary" onclick="processOrder()">Checkout</button>
+            </div>
+        </div>
+        <div id="modal-backdrop"
+            style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index: 1000;"
+            onclick="closeModal()"></div>
+    </main>
+
+    <script src="js/utils.js"></script>
+    <script src="js/events.js"></script>
+</body>
+
+</html>
